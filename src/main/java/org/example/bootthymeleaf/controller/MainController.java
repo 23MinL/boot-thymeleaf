@@ -1,6 +1,8 @@
 package org.example.bootthymeleaf.controller;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.example.bootthymeleaf.model.dto.UpdateWordForm;
 import org.example.bootthymeleaf.model.dto.WordForm;
 import org.example.bootthymeleaf.model.entity.Word;
 import org.example.bootthymeleaf.model.repository.WordRepository;
@@ -46,6 +48,7 @@ public class MainController {
                 wordRepository.findAllByOrderByCreatedAtDesc());
         // 타임리프에서 이미 폼을 이미 정의된 걸로 쓰려면 Model을 통해서 전달해야합니다
         model.addAttribute("wordForm", new WordForm()); // 주입함!
+        model.addAttribute("updateWordForm", new UpdateWordForm());
         return "index"; // forward
     }
 
@@ -55,6 +58,20 @@ public class MainController {
         Word word = new Word();
         word.setText(wordForm.getWord());
         wordRepository.save(word);
+        return "redirect:/";
+    }
+
+    @PostMapping("/update")
+    @Transactional // 최종해결
+    public String updateWord(@ModelAttribute UpdateWordForm form, RedirectAttributes redirectAttributes) {
+        // JPA는 업데이트용 메서드나 기능이 따로 없어요
+        // JPA는 수정용이 따로 없어요
+        // -> 교체 개념이에요 => put <-> patch : 멱등성 (TIL)
+        // JPA : Jakarta Persistence API
+        Word oldWord = wordRepository.findById(form.getUuid()).orElseThrow();
+        oldWord.setText(form.getNewWord());
+        wordRepository.save(oldWord);
+        redirectAttributes.addFlashAttribute("message", "정상적으로 교제되었습니다. %s".formatted(oldWord.getUuid()));
         return "redirect:/";
     }
 
