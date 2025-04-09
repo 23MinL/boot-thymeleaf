@@ -48,7 +48,6 @@ public class MainController {
                 wordRepository.findAllByOrderByCreatedAtDesc());
         // 타임리프에서 이미 폼을 이미 정의된 걸로 쓰려면 Model을 통해서 전달해야합니다
         model.addAttribute("wordForm", new WordForm()); // 주입함!
-        model.addAttribute("updateWordForm", new UpdateWordForm());
         return "index"; // forward
     }
 
@@ -62,7 +61,6 @@ public class MainController {
     }
 
     @PostMapping("/update")
-    @Transactional // 최종해결
     public String updateWord(@ModelAttribute UpdateWordForm form, RedirectAttributes redirectAttributes) {
         // JPA는 업데이트용 메서드나 기능이 따로 없어요
         // JPA는 수정용이 따로 없어요
